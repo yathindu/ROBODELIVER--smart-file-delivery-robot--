@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Logs - RoboDeliver</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="5" y="15" width="40" height="25" rx="5" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="15" cy="40" r="5" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="35" cy="40" r="5" stroke="currentColor" stroke-width="2"/>
+                        <path d="M15 15V8C15 6 17 5 25 5C33 5 35 6 35 8V15" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="25" cy="27" r="4" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>ROBO<span>DELIVER</span></h1>
+                    <p>System Logs</p>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="control.html" class="nav-link">Control</a>
+                <a href="monitor.html" class="nav-link">Monitor</a>
+                <a href="logs.html" class="nav-link active">Logs</a>
+            </nav>
+        </header>
+
+        <!-- Log Stats -->
+        <div class="monitor-grid">
+            <div class="monitor-card">
+                <div class="label">Total Events</div>
+                <div class="value" id="totalEvents">0</div>
+            </div>
+            <div class="monitor-card">
+                <div class="label">Missions Completed</div>
+                <div class="value" id="missionsCompleted" style="color: #00ff88;">0</div>
+            </div>
+            <div class="monitor-card">
+                <div class="label">Obstacles Detected</div>
+                <div class="value" id="obstaclesDetected" style="color: #ff4757;">0</div>
+            </div>
+        </div>
+
+        <!-- Log Panel -->
+        <div class="panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 class="panel-title" style="margin: 0;">📋 Event Log</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="filterLogs('all')" style="padding: 10px 20px;">All</button>
+                    <button class="btn btn-secondary" onclick="filterLogs('success')" style="padding: 10px 20px; border-color: #00ff88; color: #00ff88;">Success</button>
+                    <button class="btn btn-secondary" onclick="filterLogs('warning')" style="padding: 10px 20px; border-color: #ffd700; color: #ffd700;">Warning</button>
+                    <button class="btn btn-secondary" onclick="filterLogs('error')" style="padding: 10px 20px; border-color: #ff4757; color: #ff4757;">Error</button>
+                    <button class="btn btn-clear" onclick="clearLogs()" style="padding: 10px 20px;">Clear</button>
+                </div>
+            </div>
+            
+            <div class="log-container" id="systemLog">
+                <div class="log-entry">
+                    <span class="log-time">[--:--:--]</span>
+                    <span>Waiting for events...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="control-grid" style="margin-top: 30px;">
+            <div class="panel">
+                <h3 class="panel-title">📊 Recent Activity</h3>
+                
+                <div id="activityList" style="max-height: 300px; overflow-y: auto;">
+                    <div style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        No recent activity
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3 class="panel-title">⚙️ System Info</h3>
+                
+                <div style="display: grid; gap: 15px;">
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <span style="color: var(--text-muted);">Arduino Status</span>
+                        <span style="color: var(--accent);">● Online</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <span style="color: var(--text-muted);">NodeMCU Status</span>
+                        <span style="color: var(--accent);">● Online</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <span style="color: var(--text-muted);">Firebase</span>
+                        <span id="firebaseStatus" style="color: var(--warning);">● Connecting...</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <span style="color: var(--text-muted);">Baud Rate</span>
+                        <span style="color: var(--primary);">9600</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <span style="color: var(--text-muted);">IR Threshold</span>
+                        <span style="color: var(--primary);">650</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                        <span style="color: var(--text-muted);">Obstacle Distance</span>
+                        <span style="color: var(--primary);">20 cm</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Smart File Delivery Robot &copy; 2025 | Built with Arduino & ESP8266</p>
+        </footer>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const robotRef = db.ref('robots/robot1');
+        
+        let logs = [];
+        let totalEvents = 0;
+        let missionsCompleted = 0;
+        let obstaclesDetected = 0;
+        let lastStatus = "";
+        let lastObstacle = false;
+
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Logging
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            logs.push({ time, msg, type });
+            totalEvents++;
+            
+            document.getElementById('totalEvents').innerText = totalEvents;
+            
+            renderLogs();
+            updateActivity(time, msg, type);
+        }
+
+        function renderLogs(filter = 'all') {
+            const box = document.getElementById('systemLog');
+            box.innerHTML = '';
+            
+            const filteredLogs = filter === 'all' ? logs : logs.filter(l => l.type === filter);
+            
+            if (filteredLogs.length === 0) {
+                box.innerHTML = '<div class="log-entry"><span class="log-time">[--:--:--]</span><span>No logs to display</span></div>';
+                return;
+            }
+            
+            filteredLogs.slice().reverse().forEach(entry => {
+                const div = document.createElement('div');
+                div.className = `log-entry ${entry.type}`;
+                div.innerHTML = `<span class="log-time">[${entry.time}]</span><span>${entry.msg}</span>`;
+                box.appendChild(div);
+            });
+        }
+
+        function filterLogs(type) {
+            renderLogs(type);
+        }
+
+        function clearLogs() {
+            if (confirm('Clear all logs?')) {
+                logs = [];
+                totalEvents = 0;
+                missionsCompleted = 0;
+                obstaclesDetected = 0;
+                document.getElementById('totalEvents').innerText = '0';
+                document.getElementById('missionsCompleted').innerText = '0';
+                document.getElementById('obstaclesDetected').innerText = '0';
+                renderLogs();
+                document.getElementById('activityList').innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px;">No recent activity</div>';
+            }
+        }
+
+        function updateActivity(time, msg, type) {
+            const list = document.getElementById('activityList');
+            if (list.querySelector('div[style*="text-align: center"]')) {
+                list.innerHTML = '';
+            }
+            
+            const colors = {
+                'success': '#00ff88',
+                'error': '#ff4757',
+                'warning': '#ffd700',
+                'info': '#00d4ff'
+            };
+            
+            const item = document.createElement('div');
+            item.style.cssText = `
+                display: flex;
+                justify-content: space-between;
+                padding: 12px 15px;
+                background: rgba(0,0,0,0.3);
+                border-radius: 10px;
+                margin-bottom: 10px;
+                border-left: 3px solid ${colors[type] || colors.info};
+            `;
+            item.innerHTML = `
+                <span style="color: ${colors[type] || colors.info}">${msg}</span>
+                <span style="color: var(--text-muted); font-size: 12px;">${time}</span>
+            `;
+            
+            list.insertBefore(item, list.firstChild);
+            
+            // Keep only last 10
+            while (list.children.length > 10) {
+                list.removeChild(list.lastChild);
+            }
+        }
+
+        // Firebase Listeners
+        robotRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            document.getElementById('firebaseStatus').innerHTML = '● Connected';
+            document.getElementById('firebaseStatus').style.color = '#00ff88';
+            
+            if (!data) return;
+
+            // Log status changes
+            if (data.status !== lastStatus) {
+                if (data.status === "MOVING") {
+                    log(`Mission started: ${data.currentTarget}`, 'info');
+                } else if (data.status === "WAITING" && lastStatus === "MOVING") {
+                    log(`Arrived at ${data.arrivedAt}`, 'success');
+                    missionsCompleted++;
+                    document.getElementById('missionsCompleted').innerText = missionsCompleted;
+                } else if (data.status === "RETURNING") {
+                    log('Emergency return activated', 'warning');
+                }
+                lastStatus = data.status;
+            }
+            
+            // Log obstacle changes
+            if (data.obstacleDetected !== lastObstacle) {
+                if (data.obstacleDetected) {
+                    log(`Obstacle detected at ${data.obstacleDistance || '< 20'}cm - Robot paused`, 'error');
+                    obstaclesDetected++;
+                    document.getElementById('obstaclesDetected').innerText = obstaclesDetected;
+                } else if (lastObstacle) {
+                    log('Obstacle cleared - Robot resumed', 'success');
+                }
+                lastObstacle = data.obstacleDetected;
+            }
+            
+        }, (error) => {
+            document.getElementById('firebaseStatus').innerHTML = '● Disconnected';
+            document.getElementById('firebaseStatus').style.color = '#ff4757';
+            log(`Firebase error: ${error.message}`, 'error');
+        });
+
+        // Initial log
+        document.addEventListener('DOMContentLoaded', () => {
+            log('System logs initialized', 'info');
+            log('Connecting to Firebase...', 'info');
+        });
+    </script>
+</body>
+</html>

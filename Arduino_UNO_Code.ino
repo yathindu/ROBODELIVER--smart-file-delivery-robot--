@@ -243,3 +243,93 @@ void executeTurn() {
   pendingTurn = "";
   state = FOLLOWING;
 }
+
+// ==================== MOTOR FUNCTIONS ====================
+
+void forward() {
+  digitalWrite(12, LOW); digitalWrite(11, HIGH);
+  digitalWrite(10, HIGH); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, HIGH);
+  digitalWrite(2, HIGH); digitalWrite(13, LOW);
+  analogWrite(3, 60);
+  analogWrite(5, 60);
+  analogWrite(6, 60);
+  analogWrite(9, 60);
+}
+
+void left1() {
+  digitalWrite(12, LOW); digitalWrite(11, LOW);
+  digitalWrite(2, LOW); digitalWrite(13, LOW);
+  digitalWrite(10, HIGH); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, HIGH);
+  analogWrite(3, 80);
+  analogWrite(5, 80);
+  analogWrite(6, 80);
+  analogWrite(9, 80);
+}
+
+void left2() {
+  digitalWrite(12, LOW); digitalWrite(11, LOW);
+  digitalWrite(2, LOW); digitalWrite(13, LOW);
+  digitalWrite(10, HIGH); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, HIGH);
+  analogWrite(3, 90);
+  analogWrite(5, 90);
+  analogWrite(6, 90);
+  analogWrite(9, 90);
+}
+
+void right1() {
+  digitalWrite(12, LOW); digitalWrite(11, HIGH);
+  digitalWrite(2, HIGH); digitalWrite(13, LOW);
+  digitalWrite(10, LOW); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, LOW);
+  analogWrite(3, 80);
+  analogWrite(5, 80);
+  analogWrite(6, 80);
+  analogWrite(9, 80);
+}
+
+void right2() {
+  digitalWrite(12, LOW); digitalWrite(11, HIGH);
+  digitalWrite(2, HIGH); digitalWrite(13, LOW);
+  digitalWrite(10, LOW); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, LOW);
+  analogWrite(3, 90);
+  analogWrite(5, 90);
+  analogWrite(6, 90);
+  analogWrite(9, 90);
+}
+
+void spinLeft() {
+  digitalWrite(12, HIGH); digitalWrite(11, LOW);
+  digitalWrite(10, HIGH); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, HIGH);
+  digitalWrite(2, LOW); digitalWrite(13, HIGH);
+  analogWrite(3, 80);
+  analogWrite(5, 80);
+  analogWrite(6, 80);
+  analogWrite(9, 80);
+}
+
+void spinRight() {
+  digitalWrite(12, LOW); digitalWrite(11, HIGH);
+  digitalWrite(10, LOW); digitalWrite(8, HIGH);
+  digitalWrite(7, HIGH); digitalWrite(4, LOW);
+  digitalWrite(2, HIGH); digitalWrite(13, LOW);
+  analogWrite(3, 80);
+  analogWrite(5, 80);
+  analogWrite(6, 80);
+  analogWrite(9, 80);
+}
+
+void stop() {
+  digitalWrite(12, LOW); digitalWrite(11, LOW);
+  digitalWrite(2, LOW); digitalWrite(13, LOW);
+  digitalWrite(10, LOW); digitalWrite(8, LOW);
+  digitalWrite(7, LOW); digitalWrite(4, LOW);
+  analogWrite(3, 0);
+  analogWrite(5, 0);
+  analogWrite(6, 0);
+  analogWrite(9, 0);
+}
