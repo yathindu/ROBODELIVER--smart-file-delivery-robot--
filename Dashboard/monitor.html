@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Monitor - RoboDeliver</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="5" y="15" width="40" height="25" rx="5" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="15" cy="40" r="5" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="35" cy="40" r="5" stroke="currentColor" stroke-width="2"/>
+                        <path d="M15 15V8C15 6 17 5 25 5C33 5 35 6 35 8V15" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="25" cy="27" r="4" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>ROBO<span>DELIVER</span></h1>
+                    <p>Live Monitor</p>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="control.html" class="nav-link">Control</a>
+                <a href="monitor.html" class="nav-link active">Monitor</a>
+                <a href="logs.html" class="nav-link">Logs</a>
+            </nav>
+        </header>
+
+        <!-- Monitor Cards -->
+        <div class="monitor-grid">
+            <div class="monitor-card">
+                <div class="label">Current Status</div>
+                <div class="value" id="statusValue">---</div>
+                <div class="connection-status">
+                    <div class="connection-dot" id="connectionDot"></div>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+            </div>
+            <div class="monitor-card">
+                <div class="label">Location</div>
+                <div class="value" id="locationValue" style="font-size: 24px;">---</div>
+            </div>
+            <div class="monitor-card">
+                <div class="label">Target</div>
+                <div class="value" id="targetValue" style="font-size: 24px;">---</div>
+            </div>
+        </div>
+
+        <!-- Main Monitor Panel -->
+        <div class="control-grid">
+            <!-- Left - Sensor Display -->
+            <div class="panel">
+                <h3 class="panel-title">📡 IR Sensor Array</h3>
+                
+                <div style="text-align: center; padding: 30px 0;">
+                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+                        Sensor status (simulated display)
+                    </p>
+                    
+                    <div class="sensor-display">
+                        <div class="sensor-indicator" id="s4">S4</div>
+                        <div class="sensor-indicator" id="s3">S3</div>
+                        <div class="sensor-indicator active" id="s2">S2</div>
+                        <div class="sensor-indicator" id="s1">S1</div>
+                        <div class="sensor-indicator" id="s0">S0</div>
+                    </div>
+                    
+                    <p style="color: var(--text-muted); margin-top: 20px; font-size: 12px;">
+                        LEFT ← → RIGHT
+                    </p>
+                </div>
+
+                <h3 class="panel-title" style="margin-top: 30px;">🔊 Ultrasonic Sensor</h3>
+                
+                <div style="text-align: center; padding: 20px;">
+                    <div class="monitor-card" style="margin: 0 auto; max-width: 200px;">
+                        <div class="label">Distance</div>
+                        <div class="value" id="distanceValue" style="font-size: 48px;">--</div>
+                        <div class="label">cm</div>
+                    </div>
+                    
+                    <div class="obstacle-warning" id="obstacleWarning">
+                        ⚠️ OBSTACLE DETECTED!<br>
+                        <span id="obstacleDistance"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right - Track & Stats -->
+            <div class="panel">
+                <h3 class="panel-title">🗺️ Live Track View</h3>
+                
+                <div class="track-container">
+                    <div class="track-map">
+                        <div class="track-line line-v-top"></div>
+                        <div class="track-line line-v-bottom"></div>
+                        <div class="track-line line-h-left"></div>
+                        <div class="track-line line-h-right"></div>
+                        
+                        <div class="track-node node-base active" id="node-base">
+                            <span class="node-icon">🏠</span>
+                            <span>Base</span>
+                        </div>
+                        <div class="track-node node-a" id="node-a">
+                            <span class="node-icon">📁</span>
+                            <span>Room A</span>
+                        </div>
+                        <div class="track-node node-b" id="node-b">
+                            <span class="node-icon">📁</span>
+                            <span>Room B</span>
+                        </div>
+                        <div class="track-node node-c" id="node-c">
+                            <span class="node-icon">📁</span>
+                            <span>Room C</span>
+                        </div>
+                        <div class="track-node node-junction" id="node-junction">
+                            <span>J1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="monitor-card">
+                        <div class="label">Queue</div>
+                        <div id="queueValue" style="color: var(--warning); font-size: 14px; margin-top: 10px;">---</div>
+                    </div>
+                    <div class="monitor-card">
+                        <div class="label">Last Arrived</div>
+                        <div id="arrivedValue" style="color: var(--accent); font-size: 14px; margin-top: 10px;">---</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Smart File Delivery Robot &copy; 2025 | Built with Arduino & ESP8266</p>
+        </footer>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const robotRef = db.ref('robots/robot1');
+        
+        let isConnected = false;
+        let currentRobotLocation = "Base Station";
+
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Simulate sensor animation
+        function animateSensors() {
+            const sensors = ['s0', 's1', 's2', 's3', 's4'];
+            let activeIndex = 2;
+            
+            setInterval(() => {
+                sensors.forEach((s, i) => {
+                    document.getElementById(s).classList.remove('active');
+                });
+                
+                document.getElementById(sensors[activeIndex]).classList.add('active');
+                
+                // Random movement
+                if (Math.random() > 0.7) {
+                    activeIndex = Math.max(0, Math.min(4, activeIndex + (Math.random() > 0.5 ? 1 : -1)));
+                }
+            }, 500);
+        }
+        animateSensors();
+
+        // Firebase Listeners
+        robotRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            if (!isConnected) {
+                isConnected = true;
+                document.getElementById('connectionDot').classList.add('connected');
+                document.getElementById('connectionText').textContent = 'Live';
+            }
+            
+            if (!data) {
+                document.getElementById('statusValue').innerText = "NO DATA";
+                return;
+            }
+
+            // Status
+            const status = data.status || "IDLE";
+            document.getElementById('statusValue').innerText = status;
+            
+            // Location
+            if (data.arrivedAt) {
+                currentRobotLocation = data.arrivedAt;
+                document.getElementById('locationValue').innerText = data.arrivedAt;
+            } else {
+                document.getElementById('locationValue').innerText = "Base Station";
+            }
+            
+            // Target
+            if (data.currentTarget && data.status === "MOVING") {
+                document.getElementById('targetValue').innerText = data.currentTarget;
+            } else {
+                document.getElementById('targetValue').innerText = "---";
+            }
+            
+            // Queue
+            if (data.queue) {
+                document.getElementById('queueValue').innerText = data.queue;
+            } else {
+                document.getElementById('queueValue').innerText = "Empty";
+            }
+            
+            // Arrived At
+            if (data.arrivedAt) {
+                document.getElementById('arrivedValue').innerText = data.arrivedAt;
+            }
+            
+            // Obstacle
+            const obstacleWarning = document.getElementById('obstacleWarning');
+            if (data.obstacleDetected) {
+                obstacleWarning.classList.add('show');
+                document.getElementById('distanceValue').innerText = data.obstacleDistance || "< 20";
+                document.getElementById('distanceValue').style.color = "#ff4757";
+            } else {
+                obstacleWarning.classList.remove('show');
+                document.getElementById('distanceValue').innerText = "OK";
+                document.getElementById('distanceValue').style.color = "#00ff88";
+            }
+            
+            updateTrackVisualization(data);
+            
+        }, (error) => {
+            document.getElementById('connectionDot').classList.remove('connected');
+            document.getElementById('connectionText').textContent = 'Disconnected';
+            isConnected = false;
+        });
+
+        // Track Visualization
+        function updateTrackVisualization(data) {
+            document.querySelectorAll('.track-node').forEach(node => {
+                node.classList.remove('active', 'target');
+            });
+            
+            const locationMap = {
+                "Base Station": "node-base",
+                "Room A": "node-a",
+                "Room B": "node-b",
+                "Room C": "node-c"
+            };
+            
+            const currentNode = document.getElementById(locationMap[currentRobotLocation]);
+            if (currentNode) {
+                currentNode.classList.add('active');
+            }
+            
+            if (data && data.currentTarget && data.status === "MOVING") {
+                const targetNode = document.getElementById(locationMap[data.currentTarget]);
+                if (targetNode) {
+                    targetNode.classList.add('target');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
