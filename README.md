@@ -173,17 +173,6 @@ robots/
 
 ---
 
-## 👥 Contributors
-
-| Member | Contribution |
-|--------|--------------|
-| [Yathindu] | Line Following Algorithm, Turn Execution, Dashboard(Index page)|
-| [Chanuka] | Motor Control Functions, Dashboard(Logs page) |
-| [Sindupa] | WiFi, Firebase, Obstacle Detection, Dashboard(Monitor)|
-| [Pasindu] | Navigation Routes, LCD Display, Dashboard(Control page) |
-
----
-
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
